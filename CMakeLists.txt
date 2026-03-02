@@ -105,10 +105,6 @@ add_executable (${PROJECT_NAME} ${SRC_FILES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${Jsoncpp_INCLUDE_DIRS}
-  ${Tinyxml2_INCLUDE_DIRS}
-  ${Rhash_INCLUDE_DIRS}
-  ${Tidy_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -121,11 +117,35 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   CURL::libcurl
   Threads::Threads
   ZLIB::ZLIB
-  ${Jsoncpp_LIBRARIES}
-  ${Tinyxml2_LIBRARIES}
-  ${Rhash_LIBRARIES}
-  ${Tidy_LIBRARIES}
 )
+
+if(TARGET JsonCpp::JsonCpp)
+  target_link_libraries(${PROJECT_NAME} PRIVATE JsonCpp::JsonCpp)
+else()
+  target_include_directories(${PROJECT_NAME} PRIVATE ${Jsoncpp_INCLUDE_DIRS})
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${Jsoncpp_LIBRARIES})
+endif()
+
+if(TARGET tinyxml2::tinyxml2)
+  target_link_libraries(${PROJECT_NAME} PRIVATE tinyxml2::tinyxml2)
+else()
+  target_include_directories(${PROJECT_NAME} PRIVATE ${Tinyxml2_INCLUDE_DIRS})
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${Tinyxml2_LIBRARIES})
+endif()
+
+if(TARGET LibRHash::LibRHash)
+  target_link_libraries(${PROJECT_NAME} PRIVATE LibRHash::LibRHash)
+else()
+  target_include_directories(${PROJECT_NAME} PRIVATE ${Rhash_INCLUDE_DIRS})
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${Rhash_LIBRARIES})
+endif()
+
+if(TARGET tidy-html5::tidy-html5)
+  target_link_libraries(${PROJECT_NAME} PRIVATE tidy-html5::tidy-html5)
+else()
+  target_include_directories(${PROJECT_NAME} PRIVATE ${Tidy_INCLUDE_DIRS})
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${Tidy_LIBRARIES})
+endif()
 
 # Check if libatomic is needed in order to use std::atomic, and add
 # it to the list of JavaScriptCore libraries.
