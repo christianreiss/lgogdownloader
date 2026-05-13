@@ -14,10 +14,11 @@
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-#include <signal.h>
+#include <csignal>
 
 namespace bpo = boost::program_options;
 Config Globals::globalConfig;
+std::atomic<bool> Globals::bWindowProgress{false}; // use OSC 9;4 progress bar displayed in the terminal window. Atomic to allow correct access on SIGINT
 
 template<typename T> void set_vm_value(std::map<std::string, bpo::variable_value>& vm, const std::string& option, const T& value)
 {
@@ -36,8 +37,24 @@ void ensure_trailing_slash(std::string &path, const char *default_ = nullptr) {
     }
 }
 
+// clear OSC 9;4 progress bar in case of Ctrl-C (SIGINT)
+void sigint_handler([[maybe_unused]] int signal) {
+    int saved_errno = errno;
+
+    if (Globals::bWindowProgress.load()) {
+        const char* clear_progress_bar = "\x1b]9;4;0\a";
+        write(STDOUT_FILENO, clear_progress_bar, 8); // It's important to use write here and not higher level functions (like buffered I/O) which are not signal handler safe.
+    }
+
+    errno = saved_errno;
+    std::signal(SIGINT, SIG_DFL); // reset to default
+    std::raise(SIGINT); // raise again to terminate
+}
+
 int main(int argc, char *argv[])
 {
+    std::signal(SIGINT, sigint_handler);
+
     struct sigaction act;
     act.sa_handler = SIG_IGN;
     act.sa_flags = SA_RESTART;
@@ -196,6 +213,7 @@ int main(int argc, char *argv[])
         bool bInsecure = false;
         bool bNoColor = false;
         bool bNoUnicode = false;
+        bool bNoWindowProgress = false;
         bool bNoDuplicateHandler = false;
         bool bNoRemoteXML = false;
         bool bNoSubDirectories = false;
@@ -268,6 +286,7 @@ int main(int argc, char *argv[])
             ("no-remote-xml", bpo::value<bool>(&bNoRemoteXML)->zero_tokens()->default_value(false), "Don't use remote XML for repair")
             ("no-unicode", bpo::value<bool>(&bNoUnicode)->zero_tokens()->default_value(false), "Don't use Unicode in the progress bar")
             ("no-color", bpo::value<bool>(&bNoColor)->zero_tokens()->default_value(false), "Don't use coloring in the progress bar or status messages")
+            ("no-window-progress", bpo::value<bool>(&bNoWindowProgress)->zero_tokens()->default_value(false), "Don't use OSC 9;4 progress bar for the terminal window")
             ("no-duplicate-handling", bpo::value<bool>(&bNoDuplicateHandler)->zero_tokens()->default_value(false), "Don't use duplicate handler for installers\nDuplicate installers from different languages are handled separately")
             ("no-subdirectories", bpo::value<bool>(&bNoSubDirectories)->zero_tokens()->default_value(false), "Don't create subdirectories for extras, patches and language packs")
             ("curl-verbose", bpo::value<bool>(&Globals::globalConfig.curlConf.bVerbose)->zero_tokens()->default_value(false), "Set libcurl to verbose mode")
@@ -529,6 +548,7 @@ int main(int argc, char *argv[])
         Globals::globalConfig.curlConf.bVerifyPeer = !bInsecure;
         Globals::globalConfig.bColor = !bNoColor;
         Globals::globalConfig.bUnicode = !bNoUnicode;
+        Globals::bWindowProgress.store(!bNoWindowProgress);
         Globals::globalConfig.dlConf.bDuplicateHandler = !bNoDuplicateHandler;
         Globals::globalConfig.dlConf.bRemoteXML = !bNoRemoteXML;
         Globals::globalConfig.dirConf.bSubDirectories = !bNoSubDirectories;

@@ -159,7 +159,7 @@ class Downloader
         static void processCloudSaveDownloadQueue(Config conf, const unsigned int& tid);
         static void processCloudSaveUploadQueue(Config conf, const unsigned int& tid);
         static int progressCallbackForThread(void *clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow);
-        template <typename T> void printProgress(const ThreadSafeQueue<T>& download_queue);
+        template <typename T> void printProgress(const ThreadSafeQueue<T>& download_queue, size_t total_size_bytes);
         static void getGameDetailsThread(Config config, const unsigned int& tid);
         void printGameDetailsAsText(gameDetails& game);
         void printGameFileDetailsAsText(gameFile& gf);
