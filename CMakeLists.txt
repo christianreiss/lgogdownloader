@@ -102,6 +102,7 @@ add_compile_definitions(_FILE_OFFSET_BITS=64 VERSION_NUMBER="${VERSION_NUMBER}" 
 
 add_executable (${PROJECT_NAME} ${SRC_FILES})
 
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -167,12 +168,6 @@ if(USE_QT_GUI)
     ${QT}::WebEngineWidgets
   )
 endif(USE_QT_GUI)
-
-if(Qt6_FOUND)
-  set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
-else()
-  set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
-endif(Qt6_FOUND)
 
 if(MSVC)
   # Force to always compile with W4
