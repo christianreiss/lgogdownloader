@@ -436,8 +436,8 @@ zipCDEntry ZipUtil::readZipCDEntry(std::istream *stream)
             uint8_t version = readUInt8(&extra_stream);
             if (version == 1)
             {
-                uint64_t uid = 0;
-                uint64_t gid = 0;
+                [[maybe_unused]] uint64_t uid = 0;
+                [[maybe_unused]] uint64_t gid = 0;
 
                 uint8_t uid_size = readUInt8(&extra_stream);
                 for (uint8_t i = 0; i < uid_size; i++)

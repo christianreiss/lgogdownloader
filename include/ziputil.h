@@ -21,7 +21,7 @@
 #define ZIP_EXTENDED_TIMESTAMP      0x5455
 #define ZIP_INFOZIP_UNIX_NEW        0x7875
 
-typedef struct
+struct zipEOCD
 {
     uint32_t header = 0;
     uint16_t disk = 0;
@@ -33,9 +33,9 @@ typedef struct
     uint16_t comment_length = 0;
 
     std::string comment;
-} zipEOCD;
+};
 
-typedef struct
+struct zip64EOCD
 {
     uint32_t header = 0;
     uint64_t directory_record_size = 0;
@@ -49,9 +49,9 @@ typedef struct
     uint64_t cd_offset = 0;
 
     std::string comment;
-} zip64EOCD;
+};
 
-typedef struct
+struct zipCDEntry
 {
     uint32_t header = 0;
     uint16_t version_made_by = 0;
@@ -76,7 +76,7 @@ typedef struct
     std::string comment;
     time_t timestamp = 0;
     bool isLocalCDEntry = false;
-} zipCDEntry;
+};
 
 namespace ZipUtil
 {

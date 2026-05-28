@@ -66,7 +66,7 @@ struct xferInfo
     curl_off_t chunk_file_offset = 0;
 };
 
-typedef struct
+struct zipFileEntry
 {
     std::string filepath;
     off_t comp_size;
@@ -86,7 +86,7 @@ typedef struct
     std::string splitFilePartExt;
     off_t splitFileStartOffset;
     off_t splitFileEndOffset;
-} zipFileEntry;
+};
 
 typedef std::map<std::string,std::vector<zipFileEntry>> splitFilesMap;
 
