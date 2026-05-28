@@ -820,7 +820,7 @@ void Downloader::download()
             vThreads.push_back(std::thread(Downloader::processDownloadQueue, Globals::globalConfig, i));
         }
 
-        this->printProgress(dlQueue);
+        this->printProgress(dlQueue, totalSizeBytes);
 
         // Join threads
         for (unsigned int i = 0; i < vThreads.size(); ++i)
@@ -3506,7 +3506,7 @@ int Downloader::progressCallbackForThread(void *clientp, curl_off_t dltotal, cur
     return 0;
 }
 
-template <typename T> void Downloader::printProgress(const ThreadSafeQueue<T>& download_queue)
+template <typename T> void Downloader::printProgress(const ThreadSafeQueue<T>& download_queue, size_t total_size_bytes)
 {
     int divisor_M = GlobalConstants::UNIT_DIVISOR_M_IEC;
     std::string unit_M = GlobalConstants::UNIT_STRING_M_IEC;
@@ -3632,11 +3632,24 @@ template <typename T> void Downloader::printProgress(const ThreadSafeQueue<T>& d
             std::cout << vProgressText[i] << std::endl;
         }
 
+        // Update window progress bar
+        if (Globals::bWindowProgress.load() && (total_size_bytes > 0)) {
+            double total_bytes = static_cast<double>(total_size_bytes);
+            double remaining_bytes = static_cast<double>(iTotalRemainingBytes.load());
+            uint32_t total_progress_pct = static_cast<uint32_t>(std::round(100.0 - remaining_bytes / total_bytes * 100.0));
+            std::cout << "\x1b]9;4;1;" << total_progress_pct << "\a";
+        }
+
         // Move cursor up by vProgressText.size() rows
         if (dl_status != DLSTATUS_FINISHED)
         {
             std::cout << "\033[" << vProgressText.size() << "A\r" << std::flush;
         }
+    }
+
+    if (Globals::bWindowProgress.load()) {
+        // Clear window progress bar
+        std::cout << "\x1b]9;4;0\a";
     }
 }
 
@@ -4247,7 +4260,7 @@ void Downloader::galaxyInstallGameById(const std::string& product_id, const std:
         vThreads.push_back(std::thread(Downloader::processGalaxyDownloadQueue, install_path, Globals::globalConfig, i));
     }
 
-    this->printProgress(dlQueueGalaxy);
+    this->printProgress(dlQueueGalaxy, totalSize);
 
     // Join threads
     for (unsigned int i = 0; i < vThreads.size(); ++i)
@@ -5257,7 +5270,7 @@ void Downloader::uploadCloudSavesById(const std::string& product_id, const std::
         vThreads.push_back(std::thread(Downloader::processCloudSaveUploadQueue, Globals::globalConfig, i));
     }
 
-    this->printProgress(dlCloudSaveQueue);
+    this->printProgress(dlCloudSaveQueue, 0); // no total size passed here for now
 
     // Join threads
     for (unsigned int i = 0; i < vThreads.size(); ++i) {
@@ -5351,7 +5364,7 @@ void Downloader::downloadCloudSavesById(const std::string& product_id, const std
         vThreads.push_back(std::thread(Downloader::processCloudSaveDownloadQueue, Globals::globalConfig, i));
     }
 
-    this->printProgress(dlCloudSaveQueue);
+    this->printProgress(dlCloudSaveQueue, 0);  // no total size passed here for now
 
     // Join threads
     for (unsigned int i = 0; i < vThreads.size(); ++i) {
@@ -5819,7 +5832,7 @@ void Downloader::galaxyInstallGame_MojoSetupHack(const std::string& product_id)
             vThreads.push_back(std::thread(Downloader::processGalaxyDownloadQueue_MojoSetupHack, Globals::globalConfig, i));
         }
 
-        this->printProgress(dlQueueGalaxy_MojoSetupHack);
+        this->printProgress(dlQueueGalaxy_MojoSetupHack, totalSize);
 
         // Join threads
         for (unsigned int i = 0; i < vThreads.size(); ++i)
