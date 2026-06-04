@@ -213,6 +213,10 @@ std::vector<gameItem> Website::getGames()
         if (product["worksOn"]["Linux"].asBool())
             platform |= GlobalConstants::PLATFORM_LINUX;
 
+        // No platform is set, assume all platforms
+        if (platform == 0)
+            platform |= Util::getOptionValue("all", GlobalConstants::PLATFORMS);
+
         // Skip if not new and flag is set
         if (Globals::globalConfig.bNew && !game.isnew)
             continue;
