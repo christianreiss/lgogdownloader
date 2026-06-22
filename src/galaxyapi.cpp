@@ -353,7 +353,7 @@ std::vector<galaxyDepotItem> galaxyAPI::getDepotItemsVector(const std::string& h
 
 Json::Value galaxyAPI::getProductInfo(const std::string& product_id)
 {
-    const std::string main_url = "https://api.gog.com/products/" + product_id + "?expand=downloads,description,screenshots,videos,related_products,changelog&locale=en-US";
+    const std::string main_url = "https://api.gog.com/products/" + product_id + "?expand=downloads,description,screenshots,videos,related_products,changelog";
 
     Json::Value product_info = this->getResponseJson(main_url);
 
