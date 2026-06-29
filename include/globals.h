@@ -10,6 +10,7 @@
 #include "config.h"
 #include <iostream>
 #include <vector>
+#include <atomic>
 
 namespace Globals
 {
