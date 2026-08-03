@@ -6717,7 +6717,7 @@ void Downloader::printGameDetailsAsText(gameDetails& game)
         std::cout << "serials:" << std::endl << game.serials << std::endl;
 
     // List installers
-    if ((Globals::globalConfig.dlConf.iInclude & GlobalConstants::GFTYPE_BASE_INSTALLER) && !game.installers.empty())
+    if (!game.installers.empty())
     {
         std::cout << "installers: " << std::endl;
         for (auto gf : game.installers)
@@ -6726,7 +6726,7 @@ void Downloader::printGameDetailsAsText(gameDetails& game)
         }
     }
     // List extras
-    if ((Globals::globalConfig.dlConf.iInclude & GlobalConstants::GFTYPE_BASE_EXTRA) && !game.extras.empty())
+    if (!game.extras.empty())
     {
         std::cout << "extras: " << std::endl;
         for (auto gf : game.extras)
@@ -6735,7 +6735,7 @@ void Downloader::printGameDetailsAsText(gameDetails& game)
         }
     }
     // List patches
-    if ((Globals::globalConfig.dlConf.iInclude & GlobalConstants::GFTYPE_BASE_PATCH) && !game.patches.empty())
+    if (!game.patches.empty())
     {
         std::cout << "patches: " << std::endl;
         for (auto gf : game.patches)
@@ -6744,7 +6744,7 @@ void Downloader::printGameDetailsAsText(gameDetails& game)
         }
     }
     // List language packs
-    if ((Globals::globalConfig.dlConf.iInclude & GlobalConstants::GFTYPE_BASE_LANGPACK) && !game.languagepacks.empty())
+    if (!game.languagepacks.empty())
     {
         std::cout << "language packs: " << std::endl;
         for (auto gf : game.languagepacks)
@@ -6752,7 +6752,7 @@ void Downloader::printGameDetailsAsText(gameDetails& game)
             this->printGameFileDetailsAsText(gf);
         }
     }
-    if ((Globals::globalConfig.dlConf.iInclude & GlobalConstants::GFTYPE_DLC) && !game.dlcs.empty())
+    if (!game.dlcs.empty())
     {
         std::cout << "DLCs: " << std::endl;
         for (auto dlc : game.dlcs)
@@ -6763,28 +6763,28 @@ void Downloader::printGameDetailsAsText(gameDetails& game)
             if (!dlc.serials.empty())
                 std::cout << "serials:" << dlc.serials << std::endl;
 
-            if ((Globals::globalConfig.dlConf.iInclude & GlobalConstants::GFTYPE_DLC_INSTALLER) && !dlc.installers.empty())
+            if (!dlc.installers.empty())
             {
                 for (auto gf : dlc.installers)
                 {
                     this->printGameFileDetailsAsText(gf);
                 }
             }
-            if ((Globals::globalConfig.dlConf.iInclude & GlobalConstants::GFTYPE_DLC_PATCH) && !dlc.patches.empty())
+            if (!dlc.patches.empty())
             {
                 for (auto gf : dlc.patches)
                 {
                     this->printGameFileDetailsAsText(gf);
                 }
             }
-            if ((Globals::globalConfig.dlConf.iInclude & GlobalConstants::GFTYPE_DLC_EXTRA) && !dlc.extras.empty())
+            if (!dlc.extras.empty())
             {
                 for (auto gf : dlc.extras)
                 {
                     this->printGameFileDetailsAsText(gf);
                 }
             }
-            if ((Globals::globalConfig.dlConf.iInclude & GlobalConstants::GFTYPE_DLC_LANGPACK) && !dlc.languagepacks.empty())
+            if (!dlc.languagepacks.empty())
             {
                 for (auto gf : dlc.languagepacks)
                 {
