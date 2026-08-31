@@ -654,7 +654,8 @@ std::string galaxyAPI::getPathFromDownlinkUrl(const std::string& downlink_url, c
     size_t filename_end_pos = downlink_url_unescaped.length();
 
     // Check to see if url has any query strings
-    if (downlink_url_unescaped.find("?") != std::string::npos)
+    size_t query_pos = downlink_url_unescaped.find("?");
+    if ((query_pos != std::string::npos) && (query_pos > filename_start_pos))
     {
         // Assume that filename ends at first "?"
         filename_end_pos = downlink_url_unescaped.find_first_of("?");
