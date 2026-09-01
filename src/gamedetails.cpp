@@ -406,6 +406,7 @@ std::string gameDetails::makeFilepath(const gameFile& gf, const DirectoryConfig&
     templates["%platform%"] = platform;
     templates["%gamename_transformed%"] = gamename_transformed;
     templates["%gamename_transformed_firstletter%"] = gamename_transformed_firstletter;
+    templates["%version%"] = gf.version;
 
     for (auto t : templates)
         Util::replaceAllString(filepath, t.first, t.second);
