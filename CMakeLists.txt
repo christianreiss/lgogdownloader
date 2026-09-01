@@ -40,6 +40,7 @@ set(SRC_FILES
   src/gamedetails.cpp
   src/galaxyapi.cpp
   src/ziputil.cpp
+  src/obsolete.cpp
   src/catalogmetadata.cpp
 )
 
