@@ -159,7 +159,8 @@ int main(int argc, char *argv[])
         "- %title%\n"
         "- %title_stripped%\n"
         "- %dlc_title%\n"
-        "- %dlc_title_stripped%";
+        "- %dlc_title_stripped%"
+        "- %version%";
 
     // Help text for subdir options
     std::string galaxy_sort_help_text = "\nOptions:\n"
