@@ -3843,8 +3843,8 @@ void Downloader::getProgressFooter(const DownloadStats& stats, const unsigned lo
     auto percentage = [](const unsigned long long& done, const unsigned long long& total) -> std::string
     {
         if (total == 0)
-            return "  0%";
-        return Util::formattedString("%3.0f%%", static_cast<double>(done) / static_cast<double>(total) * 100.0);
+            return "0%";
+        return Util::formattedString("%.0f%%", static_cast<double>(done) / static_cast<double>(total) * 100.0);
     };
 
     // Separator
@@ -3910,44 +3910,51 @@ void Downloader::printDownloadSummary(const DownloadStats& stats, const bptime::
     if (snapshot.files_total == 0)
         return;
 
-    const bool bColor = Globals::globalConfig.bColor;
-    const std::string color_ok = bColor ? "\033[32m" : "";
-    const std::string color_fail = bColor ? "\033[31m" : "";
-    const std::string color_reset = bColor ? "\033[0m" : "";
+    std::vector<std::string> vFailedFiles = stats.getFailedFiles();
 
     unsigned long long files_accounted = snapshot.files_ok + snapshot.files_uptodate
                                        + snapshot.files_skipped + snapshot.files_failed;
     unsigned long long files_not_attempted = (snapshot.files_total > files_accounted)
                                            ? (snapshot.files_total - files_accounted) : 0;
 
-    std::ostringstream ss;
-    ss << "Download summary" << std::endl;
-    ss << "  Games:   " << color_ok << snapshot.games_ok << color_reset << " ok, "
-       << (snapshot.games_failed > 0 ? color_fail : "") << snapshot.games_failed << color_reset
-       << " failed of " << snapshot.games_total << std::endl;
-    ss << "  Files:   " << color_ok << snapshot.files_ok << color_reset << " downloaded, "
-       << snapshot.files_uptodate << " up to date, "
-       << snapshot.files_skipped << " skipped, "
-       << (snapshot.files_failed > 0 ? color_fail : "") << snapshot.files_failed << color_reset
-       << " failed of " << snapshot.files_total << std::endl;
-    if (files_not_attempted > 0)
-        ss << "  " << color_fail << files_not_attempted << " file(s) were not attempted" << color_reset << std::endl;
-    ss << "  Data:    " << Util::makeSizeString(snapshot.bytes_done, Globals::globalConfig.iUnitFormat)
-       << " of " << Util::makeSizeString(snapshot.bytes_total, Globals::globalConfig.iUnitFormat) << std::endl;
-    ss << "  Elapsed: " << Util::makeEtaString(elapsed) << std::endl;
-
-    std::vector<std::string> vFailedFiles = stats.getFailedFiles();
-    if (!vFailedFiles.empty())
+    auto makeSummary = [&](const bool& bColor) -> std::string
     {
-        ss << "  Failed files:" << std::endl;
-        for (const auto& failed_file : vFailedFiles)
-            ss << "    " << color_fail << failed_file << color_reset << std::endl;
-    }
+        const std::string color_ok = bColor ? "\033[32m" : "";
+        const std::string color_fail = bColor ? "\033[31m" : "";
+        const std::string color_reset = bColor ? "\033[0m" : "";
+        const std::string color_failed_count = (bColor && snapshot.files_failed > 0) ? color_fail : "";
+        const std::string color_failed_games = (bColor && snapshot.games_failed > 0) ? color_fail : "";
 
-    std::cout << std::endl << ss.str() << std::flush;
+        std::ostringstream ss;
+        ss << "Download summary" << std::endl;
+        ss << "  Games:   " << color_ok << snapshot.games_ok << color_reset << " ok, "
+           << color_failed_games << snapshot.games_failed << color_reset
+           << " failed of " << snapshot.games_total << std::endl;
+        ss << "  Files:   " << color_ok << snapshot.files_ok << color_reset << " downloaded, "
+           << snapshot.files_uptodate << " up to date, "
+           << snapshot.files_skipped << " skipped, "
+           << color_failed_count << snapshot.files_failed << color_reset
+           << " failed of " << snapshot.files_total << std::endl;
+        if (files_not_attempted > 0)
+            ss << "  " << color_fail << files_not_attempted << " file(s) were not attempted" << color_reset << std::endl;
+        ss << "  Data:    " << Util::makeSizeString(snapshot.bytes_done, Globals::globalConfig.iUnitFormat)
+           << " of " << Util::makeSizeString(snapshot.bytes_total, Globals::globalConfig.iUnitFormat) << std::endl;
+        ss << "  Elapsed: " << Util::makeEtaString(elapsed) << std::endl;
+
+        if (!vFailedFiles.empty())
+        {
+            ss << "  Failed files:" << std::endl;
+            for (const auto& failed_file : vFailedFiles)
+                ss << "    " << color_fail << failed_file << color_reset << std::endl;
+        }
+
+        return ss.str();
+    };
+
+    std::cout << std::endl << makeSummary(Globals::globalConfig.bColor) << std::flush;
 
     if (Globals::globalConfig.bReport)
-        this->report_ofs << ss.str();
+        this->report_ofs << makeSummary(false);
 }
 
 void Downloader::getGameDetailsThread(Config config, const unsigned int& tid)
